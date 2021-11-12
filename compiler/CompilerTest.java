@@ -1,8 +1,9 @@
-package knightcodecompiler;
+package compiler;
 /**
  * This class encapsulates a basic grammar test.
  */
 
+import java.util.Scanner;
 import java.io.IOException;
 //ANTLR packages
 import org.antlr.v4.runtime.*;
@@ -18,24 +19,49 @@ public class CompilerTest{
 
     public static void main(String[] args){
         CharStream input;
-        KnightCodeLexer lexer;
+        tinyLexer lexer;
         CommonTokenStream tokens;
-        KnightCodeParser parser;
+        tinyParser parser;
+
+	System.out.println("Compiler executing. . . ");
 
         try{
             input = CharStreams.fromFileName(args[0]);  //get the input
-            lexer = new KnightCodeLexer(input); //create the lexer
+            lexer = new tinyLexer(input); //create the lexer
             tokens = new CommonTokenStream(lexer); //create the token stream
-            parser = new KnightCodeParser(tokens); //create the parser
+            parser = new tinyParser(tokens); //create the parser
+
+	    //adding custom error listener
+	    //parser.removeErrorListeners();
+
+	    //parser.addErrorListener(new VerboseListener());
+
        
-            ParseTree tree = parser.file();  //set the start location of the parser
+            ParseTree tree = parser.program();  //set the start location of the parser
              
+           // System.out.println(tree.toStringTree(parser));
             
-            Trees.inspect(tree, parser);
+           //Trees.inspect(tree, parser);
             
-            //System.out.println(tree.toStringTree(parser));
         
-        }
+	    Scanner scan = new Scanner(System.in);
+	    System.out.print("Enter name for class file: ");
+	    String classFile = scan.next();
+	    System.out.print("Debug?  Y/N");
+	    String debug = scan.next();
+	    boolean debugFlag = false;
+            if(debug.equals("Y"))
+		debugFlag = true;		
+	
+
+	    myListener listener = new myListener(classFile, debugFlag);
+	    ParseTreeWalker walker = new ParseTreeWalker();
+	    walker.walk(listener, tree);
+	    
+	  // myVisitor visitor = new myVisitor();
+	  // visitor.visit(tree);
+
+       }
         catch(IOException e){
             System.out.println(e.getMessage());
         }
