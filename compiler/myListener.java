@@ -4,14 +4,17 @@ import org.antlr.v4.runtime.ParserRuleContext; // need to debug every rule
 import lexparse.*; //classes for lexer parser
 import org.objectweb.asm.*;  //classes for generating bytecode
 import org.objectweb.asm.Opcodes; //Explicit import for ASM bytecode constants
+import java.util.HashMap;
 
 
-public class myListener extends tinyBaseListener{
+public class myListener extends KnightCodeBaseListener{
 
 	private ClassWriter cw;  //class level ClassWriter 
 	private MethodVisitor mainVisitor; //class level MethodVisitor
 	private String programName; //name of the class and the output file (used by ASM)
 	private boolean debug; //flag to indicate debug status
+
+    private HashMap<String, variable> symbolTable = new HashMap<String, variable>();
 
 	public myListener(String programName, boolean debug){
 	       
@@ -58,18 +61,70 @@ public class myListener extends tinyBaseListener{
 	}//end closeClass
 
 
-	public void enterProgram(tinyParser.ProgramContext ctx){
+    @Override
+	public void enterFile(KnightCodeParser.FileContext ctx){
 
 		System.out.println("Enter program rule for first time");
 		setupClass();
 	}
 
-	public void exitProgram(tinyParser.ProgramContext ctx){
+    @Override
+	public void exitFile(KnightCodeParser.FileContext ctx){
 
 		System.out.println("Leaving program rule. . .");
 		closeClass();
 
 	}
+
+    @Override 
+    public void enterDeclare(KnightCodeParser.DeclareContext ctx) { 
+        System.out.println("Enter declare...");
+    }
+
+	@Override 
+    public void exitDeclare(KnightCodeParser.DeclareContext ctx) { 
+        System.out.println("Exit declare...");
+    }
+
+    @Override 
+    public void enterVariable(KnightCodeParser.VariableContext ctx) { 
+        System.out.println("Enter variable...");
+        variable var = new variable();
+		
+		
+    }
+
+	@Override 
+    public void exitVariable(KnightCodeParser.VariableContext ctx) { 
+
+    }
+	
+    @Override
+    public void enterPrint(KnightCodeParser.PrintContext ctx){
+        System.out.println("Entering print statement...");
+        String output = ctx.getChild(1).getText();
+		//output = output.substring(5,output.length());
+		mainVisitor.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+		mainVisitor.visitLdcInsn(output);
+		mainVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream",  "println", "(Ljava/lang/String;)V", false);
+
+    }
+
+    @Override 
+    public void exitPrint(KnightCodeParser.PrintContext ctx) { 
+        System.out.println("Exiting print statement...");
+    }
+
+    @Override
+    public void enterSetvar(KnightCodeParser.SetvarContext ctx) {
+        System.out.println("Entering set var...");
+    }
+
+	@Override
+    public void exitSetvar(KnightCodeParser.SetvarContext ctx) { 
+
+        System.out.println("Exiting set var...");
+    }
 
 	/**
 	 * Prints context string. Used for debugging purposes
@@ -83,18 +138,5 @@ public class myListener extends tinyBaseListener{
 	public void enterEveryRule(ParserRuleContext ctx){ 
 		if(debug) printContext(ctx.getText());
 	}
-
-	@Override
-	public void enterWrite_stmt(tinyParser.Write_stmtContext ctx){
-
-		String output = ctx.getChild(1).getText();
-		//output = output.substring(5,output.length());
-		mainVisitor.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-		mainVisitor.visitLdcInsn(output);
-		mainVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream",  "println", "(Ljava/lang/String;)V", false);
-
-	}//end enterWrite_stmt
-
-	@Override public void exitWrite_stmt(tinyParser.Write_stmtContext ctx) { }
 
 }//end class

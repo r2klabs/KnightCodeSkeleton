@@ -1,0 +1,7 @@
+
+PROGRAM Program3
+DECLARE
+	INTEGER x
+BEGIN
+	PRINT "Hello"
+END

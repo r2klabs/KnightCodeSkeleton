@@ -48,7 +48,7 @@
 	<target name="clean">
 		<echo>Cleaning the my code directories</echo>
 		<delete>
-			<fileset dir="knightcodecompiler" includes="**/*.class"/>
+			<fileset dir="compiler" includes="**/*.class"/>
 		</delete>
 	</target>
 
