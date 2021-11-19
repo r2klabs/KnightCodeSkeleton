@@ -138,14 +138,14 @@ public class myListener extends KnightCodeBaseListener{
 		String variableName = "";
 		int storageLocation = 0;
 
-		//Searches for the output in the symbol table. If the output is found in the symbol table, it is marked as a variable.
+		//Searches for the output in the symbol table. If the output is found in the symbol table, it is marked as a variable and retrieves the storage location.
 		for(String key : symbolTable.keySet()){
 			if(output.equals(key)){
 				variableName = key;
 				variable = true;
 				variable var = symbolTable.get(variableName);
 				storageLocation = var.getMemoryLocation();
-				System.out.println(storageLocation);
+				//System.out.println(storageLocation);
 			}//end if
 		}//end for
 
@@ -158,13 +158,13 @@ public class myListener extends KnightCodeBaseListener{
 			//If the variable type in the symbol table is an integer, print the integer. If the variable type in the symbo ltable is a string, print the string.
 			if(varType.equals("INTEGER")){
 				mainVisitor.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;"); //Sets up the print stream
-            	mainVisitor.visitVarInsn(Opcodes.ILOAD, storageLocation); //Loads the int stored in value 2
+            	mainVisitor.visitVarInsn(Opcodes.ILOAD, storageLocation); //Loads the int stored in the given storage location
             	mainVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(I)V", false); //invokes the printstream to print the int loaded onto the stack to the screen
 			
 			}else if(varType.equals("STRING")){
 
 				mainVisitor.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;"); //Sets up the print stream
-            	mainVisitor.visitVarInsn(Opcodes.ALOAD, storageLocation); //Loads the string stored in value 2
+            	mainVisitor.visitVarInsn(Opcodes.ALOAD, storageLocation); //Loads the string stored in the given storage location
             	mainVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false); //invokes the printstream to print the string loaded onto the stack to the screen
 		
 			}//end if
@@ -207,8 +207,8 @@ public class myListener extends KnightCodeBaseListener{
         mainVisitor.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "in", "Ljava/io/InputStream;"); //Sets up a stream to read the next line
         mainVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/util/Scanner", "<init>", "(Ljava/io/InputStream;)V"); //Places the objet that reads user input on the stack
         mainVisitor.visitVarInsn(Opcodes.ASTORE, storageLocation); //Stores the object that reads user input in slot 1 and removes from the stack
-		scannerLocation = storageLocation;
-		storageLocation = storageLocation + 1;
+		scannerLocation = storageLocation; //sets the scanner location to the storage location so we can use the scanner later.
+		storageLocation = storageLocation + 1; //increases the storage location by 1
 
 		varType = ""; //Sets the varType to none
 		instruction = ""; //sets the instructoin type to none
@@ -218,17 +218,13 @@ public class myListener extends KnightCodeBaseListener{
 
 		//Compares each variable in the symbol table against the variable name in the read statement.
 		for(String key : symbolTable.keySet()){
-
-			//sets the variable to the value associated with the name of the variable
-			variable var = symbolTable.get(key);
-
+			variable var = symbolTable.get(key);//sets the variable to the value associated with the name of the variable
 			//if the name in the symbol table matches the name of the child, set the variable type to the variable type associated with the name in the symbol table
 			if(key.equals(varName)){
-
 				varType = var.getVariableType();
-
 			}//end if
 		}//end for
+		
 		//System.out.println(varType);
 
 		//If the variable type is a string, we set up the scanner to read a string.
@@ -239,9 +235,9 @@ public class myListener extends KnightCodeBaseListener{
 			mainVisitor.visitVarInsn(Opcodes.ALOAD, scannerLocation); //Loads the scanner
         	mainVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/util/Scanner", instruction, numType, false); //Uses the scanner on the stack to get the next input and stores that input on the stack
         	mainVisitor.visitVarInsn(Opcodes.ASTORE, storageLocation); //Stores the input in slot 2 and removes from the stack
-			variable var = symbolTable.get(varName);
-			var.setMemoryLocation(storageLocation);
-			storageLocation = storageLocation + 1;
+			variable var = symbolTable.get(varName); //Obtains the variable object stored in the symbol table
+			var.setMemoryLocation(storageLocation); //sets the storage location of the variable object in the symbol table
+			storageLocation = storageLocation + 1; //increases storage location by 1
 			
 		}else if(varType.equals("INTEGER")){
 			instruction = "nextInt"; //sets the instruction to nextInt
@@ -249,9 +245,9 @@ public class myListener extends KnightCodeBaseListener{
 			mainVisitor.visitVarInsn(Opcodes.ALOAD, scannerLocation); //Loads the scanner
         	mainVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/util/Scanner", instruction, numType, false); //Uses the scanner on the stack to get the next input and stores that input on the stack
         	mainVisitor.visitVarInsn(Opcodes.ISTORE, storageLocation); //Stores the input in slot 2 and removes from the stack
-			variable var = symbolTable.get(varName);
-			var.setMemoryLocation(storageLocation);
-			storageLocation = storageLocation + 1;
+			variable var = symbolTable.get(varName);//Obtains the variable object stored in the symbol table
+			var.setMemoryLocation(storageLocation); //sets the storage location of the variable object in the symbol table
+			storageLocation = storageLocation + 1; //increases storage location by 1
 		}
 	}
 	
