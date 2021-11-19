@@ -17,7 +17,7 @@ public class myListener extends KnightCodeBaseListener{
 	private String varType;
 	private String instruction;
 	private String numType;
-	private int storageLocation;
+	private int storageLocation = 1;
 	private int scannerLocation;
 
     private HashMap<String, variable> symbolTable = new HashMap<String, variable>();
@@ -126,7 +126,7 @@ public class myListener extends KnightCodeBaseListener{
     public void exitVariable(KnightCodeParser.VariableContext ctx) { 
 		System.out.println("Exit variable...");
 
-		System.out.println(symbolTable.toString());
+		//System.out.println(symbolTable.toString());
 
     }
 	
@@ -149,9 +149,9 @@ public class myListener extends KnightCodeBaseListener{
 			}//end if
 		}//end for
 
-		System.out.println(variable);
-		System.out.println(numType);
-		System.out.println(varType);
+		//System.out.println(variable);
+		//System.out.println(numType);
+		//System.out.println(varType);
 
 		//checks if variable is set to true. If it is, it checks what type of variable. If it is not, it prints out the context as-is.
 		if(variable){
@@ -198,10 +198,9 @@ public class myListener extends KnightCodeBaseListener{
 	public void enterRead(KnightCodeParser.ReadContext ctx) { 
 		System.out.println("Enter read...");
 
-		storageLocation = 1;
 
-		System.out.println(ctx.getChild(0).getText());
-		System.out.println(ctx.getChild(1).getText());
+		//System.out.println(ctx.getChild(0).getText());
+		//System.out.println(ctx.getChild(1).getText());
 
 		mainVisitor.visitTypeInsn(Opcodes.NEW, "java/util/Scanner"); //Instantiates the scanner object
         mainVisitor.visitInsn(Opcodes.DUP); //Duplicates the previous object <Code will not work without this>

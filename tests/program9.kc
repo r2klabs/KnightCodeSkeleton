@@ -1,6 +1,6 @@
 PROGRAM Program9
 DECLARE
-	INTEGER X
+	INTEGER x
 	INTEGER y
 BEGIN
 	PRINT "Enter an INT for x:"
