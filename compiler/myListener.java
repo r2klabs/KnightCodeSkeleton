@@ -13,6 +13,10 @@ public class myListener extends KnightCodeBaseListener{
 	private MethodVisitor mainVisitor; //class level MethodVisitor
 	private String programName; //name of the class and the output file (used by ASM)
 	private boolean debug; //flag to indicate debug status
+	private boolean variable;
+	String varType;
+	String instruction;
+	String numType;
 
     private HashMap<String, variable> symbolTable = new HashMap<String, variable>();
 
@@ -61,6 +65,9 @@ public class myListener extends KnightCodeBaseListener{
 	}//end closeClass
 
 
+	/**
+	 * Overrides the enterFile method. Sets up the class.
+	 */
     @Override
 	public void enterFile(KnightCodeParser.FileContext ctx){
 
@@ -68,6 +75,9 @@ public class myListener extends KnightCodeBaseListener{
 		setupClass();
 	}
 
+	/**
+	 * Overrides the exitFile method. Closes the class.
+	 */
     @Override
 	public void exitFile(KnightCodeParser.FileContext ctx){
 
@@ -76,50 +86,176 @@ public class myListener extends KnightCodeBaseListener{
 
 	}
 
+	/**
+	 * Overrides the enterDeclare method.
+	 */
     @Override 
     public void enterDeclare(KnightCodeParser.DeclareContext ctx) { 
         System.out.println("Enter declare...");
     }
 
+	/**
+	 * Overrides the exitDeclare method.
+	 */
 	@Override 
     public void exitDeclare(KnightCodeParser.DeclareContext ctx) { 
         System.out.println("Exit declare...");
     }
 
+	/**
+	 * Overrides the enterVariable method.
+	 */
     @Override 
     public void enterVariable(KnightCodeParser.VariableContext ctx) { 
         System.out.println("Enter variable...");
-        variable var = new variable();
-		
-		
+        variable var = new variable(); //sets up a new variable object
+
+		//System.out.println(ctx.getChild(0).getText());
+		//System.out.println(ctx.getChild(1).getText());
+
+		String identifier = ctx.getChild(1).getText(); //sets the identifier to the name of the variable name node of the parse tree
+		var.setVariableType(ctx.getChild(0).getText()); //sets the variable type of the variable object to the variable type node of the parse tree
+
+		symbolTable.put(identifier, var); //places the name and variable object into the symbol table
+
     }
 
 	@Override 
     public void exitVariable(KnightCodeParser.VariableContext ctx) { 
+		System.out.println("Exit variable...");
+
+		System.out.println(symbolTable.toString());
 
     }
 	
     @Override
     public void enterPrint(KnightCodeParser.PrintContext ctx){
+
         System.out.println("Entering print statement...");
-        String output = ctx.getChild(1).getText();
-		//output = output.substring(5,output.length());
-		mainVisitor.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-		mainVisitor.visitLdcInsn(output);
-		mainVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream",  "println", "(Ljava/lang/String;)V", false);
+        String output = ctx.getChild(1).getText(); //sets the output to the input passed as shown in the parse tree
 
-    }
+		//Searches for the output in the symbol table. If the output is found in the symbol table, it is marked as a variable.
+		for(String key : symbolTable.keySet()){
+			if(output.equals(key)){
+				variable = true;
+			}//end if
+		}//end for
 
+		System.out.println(variable);
+		System.out.println(numType);
+		System.out.println(varType);
+
+		//checks if variable is set to true. If it is, it checks what type of variable. If it is not, it prints out the context as-is.
+		if(variable){
+			//If the variable type in the symbol table is an integer, print the integer. If the variable type in the symbo ltable is a string, print the string.
+			if(varType.equals("INTEGER")){
+
+				mainVisitor.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;"); //Sets up the print stream
+            	mainVisitor.visitVarInsn(Opcodes.ILOAD, 2); //Loads the int stored in value 2
+            	mainVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(I)V", false); //invokes the printstream to print the int loaded onto the stack to the screen
+			
+			}else if(varType.equals("STRING")){
+
+				mainVisitor.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;"); //Sets up the print stream
+            	mainVisitor.visitVarInsn(Opcodes.ALOAD, 2); //Loads the string stored in value 2
+            	mainVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false); //invokes the printstream to print the string loaded onto the stack to the screen
+		
+			}//end if
+
+		}else{
+
+			numType = "";
+			//output = output.substring(5,output.length());
+			mainVisitor.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;"); //Sets up the print stream
+			mainVisitor.visitLdcInsn(output); //Sets up the output
+			mainVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream",  "println", "(Ljava/lang/String;)V", false); //prints the output to the console
+		
+		}//end else
+
+		variable = false; //Sets variable to false <If this is not set the next line won't print properly/at all>
+
+    }//end enterPrint
+
+	/**
+	 * Overrides the exitPrint method
+	 */
     @Override 
     public void exitPrint(KnightCodeParser.PrintContext ctx) { 
         System.out.println("Exiting print statement...");
     }
 
+	/**
+	 * Overrides the enterRead method
+	 */
+	@Override 
+	public void enterRead(KnightCodeParser.ReadContext ctx) { 
+		System.out.println("Enter read...");
+
+		//System.out.println(ctx.getChild(0).getText());
+		//System.out.println(ctx.getChild(1).getText());
+
+		mainVisitor.visitTypeInsn(Opcodes.NEW, "java/util/Scanner"); //Instantiates the scanner object
+        mainVisitor.visitInsn(Opcodes.DUP); //Duplicates the previous object <Code will not work without this>
+        mainVisitor.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "in", "Ljava/io/InputStream;"); //Sets up a stream to read the next line
+        mainVisitor.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/util/Scanner", "<init>", "(Ljava/io/InputStream;)V"); //Places the objet that reads user input on the stack
+        mainVisitor.visitVarInsn(Opcodes.ASTORE, 1); //Stores the object that reads user input in slot 1 and removes from the stack
+
+		varType = ""; //Sets the varType to none
+		instruction = ""; //sets the instructoin type to none
+		numType = ""; //sets the numType to none
+
+		//Compares each variable in the symbol table against the variable name in the read statement.
+		for(String key : symbolTable.keySet()){
+
+			//sets the variable to the value associated with the name of the variable
+			variable var = symbolTable.get(key);
+
+			//if the name in the symbol table matches the name of the child, set the variable type to the variable type associated with the name in the symbol table
+			if(key.equals(ctx.getChild(1).getText())){
+
+				varType = var.getVariableType();
+
+			}//end if
+		}//end for
+
+		//System.out.println(varType);
+
+		//If the variable type is a string, we set up the scanner to read a string.
+		//If the variable type is an integer, we set up the scanner to read an integer.
+		if(varType.equals("STRING")){
+			instruction = "next"; //sets the instruction to next
+			numType = "()Ljava/lang/String;"; //sets the instruction type to a String
+			mainVisitor.visitVarInsn(Opcodes.ALOAD, 1); //Loads the scanner
+        	mainVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/util/Scanner", instruction, numType, false); //Uses the scanner on the stack to get the next input and stores that input on the stack
+        	mainVisitor.visitVarInsn(Opcodes.ASTORE, 2); //Stores the input in slot 2 and removes from the stack
+		}else if(varType.equals("INTEGER")){
+			instruction = "nextInt"; //sets the instruction to nextInt
+			numType = "()I"; //sets the instruction type to integer
+			mainVisitor.visitVarInsn(Opcodes.ALOAD, 1); //Loads the scanner
+        	mainVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/util/Scanner", instruction, numType, false); //Uses the scanner on the stack to get the next input and stores that input on the stack
+        	mainVisitor.visitVarInsn(Opcodes.ISTORE, 2); //Stores the input in slot 2 and removes from the stack
+		}
+	}
+	
+	/**
+	 * Overrides the exitRead
+	 */
+	@Override 
+	public void exitRead(KnightCodeParser.ReadContext ctx) { 
+		System.out.println("Exit read...");
+	}
+
+	/**
+	 * Overrides the enterSetVar method
+	 */
     @Override
     public void enterSetvar(KnightCodeParser.SetvarContext ctx) {
         System.out.println("Entering set var...");
     }
 
+	/**
+	 * Overrides the exitSetVar method
+	 */
 	@Override
     public void exitSetvar(KnightCodeParser.SetvarContext ctx) { 
 
@@ -134,6 +270,9 @@ public class myListener extends KnightCodeBaseListener{
 		System.out.println(ctx);
 	}
 
+	/**
+	 * Overrides the enterEveryRule method
+	 */
 	@Override 
 	public void enterEveryRule(ParserRuleContext ctx){ 
 		if(debug) printContext(ctx.getText());

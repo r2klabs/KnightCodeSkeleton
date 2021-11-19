@@ -2,16 +2,16 @@ package compiler;
 
 public class variable{
     private String variableType;
-    private Object variableSet;
+    private Object variableValue;
 
     public variable(){
         variableType = "";
-        variableSet = null;
+        variableValue = null;
     }
 
     public variable(String variableType, Object variableSet){
         this.variableType = variableType;
-        this.variableSet = variableSet;
+        this.variableValue = variableSet;
     }
 
     public String getVariableType(){
@@ -26,15 +26,15 @@ public class variable{
 
     }
 
-    public Object getVariableSet(){
+    public Object getVariableValue(){
 
-        return variableSet;
+        return variableValue;
 
     }
 
-    public void setVariableSet(Object variableSet){
+    public void setVariableValue(Object variableSet){
 
-        this.variableSet = variableSet;
+        this.variableValue = variableSet;
 
     }
 

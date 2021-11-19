@@ -1,0 +1,14 @@
+PROGRAM Program8
+
+DECLARE
+	INTEGER x
+	STRING name
+
+BEGIN
+	PRINT "Please enter an integer:"
+	READ x
+	PRINT x
+	PRINT "Please enter your name:"
+	READ name
+	PRINT name
+END
