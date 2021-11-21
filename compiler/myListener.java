@@ -136,7 +136,7 @@ public class myListener extends KnightCodeBaseListener{
         System.out.println("Entering print statement...");
         String output = ctx.getChild(1).getText(); //sets the output to the input passed as shown in the parse tree
 		String variableName = "";
-		int storageLocation = 0;
+		
 
 		//Searches for the output in the symbol table. If the output is found in the symbol table, it is marked as a variable and retrieves the storage location.
 		for(String key : symbolTable.keySet()){
@@ -265,6 +265,24 @@ public class myListener extends KnightCodeBaseListener{
     @Override
     public void enterSetvar(KnightCodeParser.SetvarContext ctx) {
         System.out.println("Entering set var...");
+
+		System.out.println(ctx.getChild(0).getText());
+		System.out.println(ctx.getChild(1).getText());
+		System.out.println(ctx.getChild(2).getText());
+		System.out.println(ctx.getChild(3).getText());
+
+		mainVisitor.visitLdcInsn(ctx.getChild(3).getText()); // initializes the first integer
+		mainVisitor.visitVarInsn(Opcodes.ISTORE,storageLocation); // stores the first integer on the stack
+        
+		String variableName = ctx.getChild(1).getText(); //sets the output to the input passed as shown in the parse tree
+
+		//Searches for the output in the symbol table. If the output is found in the symbol table, it is marked as a variable and retrieves the storage location.
+		
+				variable var = symbolTable.get(variableName);
+				var.setMemoryLocation(storageLocation);
+				//System.out.println(storageLocation);
+			
+		storageLocation = storageLocation+1;
     }
 
 	/**
