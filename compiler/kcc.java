@@ -1,4 +1,4 @@
-package knightcodecompiler;
+package compiler;
 /**
  * This class encapsulates a basic grammar test.
  */
@@ -10,10 +10,11 @@ import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.tree.*;
 import org.antlr.v4.gui.Trees;
+import java.util.Scanner;
 
 import lexparse.*;
 
-public class CompilerTest{
+public class kcc{
 
 
     public static void main(String[] args){
@@ -29,11 +30,19 @@ public class CompilerTest{
             parser = new KnightCodeParser(tokens); //create the parser
        
             ParseTree tree = parser.file();  //set the start location of the parser
+
+            Scanner scan = new Scanner(System.in);
+	        System.out.print("Enter name for output class file: ");
+	        String classFile = scan.next();
              
             
             Trees.inspect(tree, parser);
             
             //System.out.println(tree.toStringTree(parser));
+
+            myListener listener = new myListener(classFile, false);
+	        ParseTreeWalker walker = new ParseTreeWalker();
+	        walker.walk(listener, tree);
         
         }
         catch(IOException e){

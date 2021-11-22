@@ -1,0 +1,9 @@
+PROGRAM Program6
+
+DECLARE
+	INTEGER x
+BEGIN
+	PRINT "Please enter an INT:"
+	READ x
+	PRINT x
+END

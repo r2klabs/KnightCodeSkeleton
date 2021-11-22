@@ -1,0 +1,12 @@
+PROGRAM Program9
+DECLARE
+	INTEGER x
+	INTEGER y
+BEGIN
+	PRINT "Enter an INT for x:"
+	READ x
+	PRINT "Enter an INT for y:"
+	READ y
+	PRINT x
+	PRINT y
+END

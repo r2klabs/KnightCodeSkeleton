@@ -1,0 +1,11 @@
+PROGRAM Program11
+DECLARE
+	INTEGER x
+	INTEGER y
+	INTEGER z
+
+BEGIN
+	SET x := 10
+	SET y := 11
+	SET z := x+y
+END

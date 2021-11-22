@@ -1,0 +1,7 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "/home/cs322/Downloads/antlr-4.9.3-complete.jar",
+        "/home/cs322/Downloads/asm-9.2.jar"
+    ]
+}

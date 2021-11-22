@@ -1,0 +1,9 @@
+PROGRAM Program7
+
+DECLARE
+	STRING name
+BEGIN
+	PRINT "Please enter your name:"
+	READ name
+	PRINT name
+END
