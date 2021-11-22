@@ -126,7 +126,7 @@ public class myListener extends KnightCodeBaseListener{
     public void exitVariable(KnightCodeParser.VariableContext ctx) { 
 		System.out.println("Exit variable...");
 
-		//System.out.println(symbolTable.toString());
+		System.out.println(symbolTable.toString());
 
     }
 	
@@ -135,19 +135,28 @@ public class myListener extends KnightCodeBaseListener{
 
         System.out.println("Entering print statement...");
         String output = ctx.getChild(1).getText(); //sets the output to the input passed as shown in the parse tree
+		System.out.println(output);
 		String variableName = "";
 		
 
 		//Searches for the output in the symbol table. If the output is found in the symbol table, it is marked as a variable and retrieves the storage location.
-		for(String key : symbolTable.keySet()){
-			if(output.equals(key)){
-				variableName = key;
-				variable = true;
-				variable var = symbolTable.get(variableName);
-				storageLocation = var.getMemoryLocation();
-				//System.out.println(storageLocation);
-			}//end if
-		}//end for
+		if(symbolTable.containsKey(output)){
+			variableName = output;
+			variable = true;
+			variable var = symbolTable.get(variableName);
+			storageLocation = var.getMemoryLocation();
+			//System.out.println(var.getVariableType());
+			//System.out.println(storageLocation);
+			varType = var.getVariableType();
+			System.out.println("Found variable in symbol table.");
+			//System.out.println(storageLocation);
+		}//end if
+		else{
+			System.out.println(symbolTable.toString());
+			System.out.println("Can't find variable in symbol table");
+		}
+
+
 
 		//System.out.println(variable);
 		//System.out.println(numType);
@@ -157,6 +166,7 @@ public class myListener extends KnightCodeBaseListener{
 		if(variable){
 			//If the variable type in the symbol table is an integer, print the integer. If the variable type in the symbo ltable is a string, print the string.
 			if(varType.equals("INTEGER")){
+				System.out.println("true");
 				mainVisitor.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;"); //Sets up the print stream
             	mainVisitor.visitVarInsn(Opcodes.ILOAD, storageLocation); //Loads the int stored in the given storage location
             	mainVisitor.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(I)V", false); //invokes the printstream to print the int loaded onto the stack to the screen
@@ -266,20 +276,23 @@ public class myListener extends KnightCodeBaseListener{
     public void enterSetvar(KnightCodeParser.SetvarContext ctx) {
         System.out.println("Entering set var...");
 
+		System.out.println(symbolTable.toString());
+
 		System.out.println(ctx.getChild(0).getText());
 		System.out.println(ctx.getChild(1).getText());
 		System.out.println(ctx.getChild(2).getText());
 		System.out.println(ctx.getChild(3).getText());
 
-		mainVisitor.visitLdcInsn(ctx.getChild(3).getText()); // initializes the first integer
-		mainVisitor.visitVarInsn(Opcodes.ISTORE,storageLocation); // stores the first integer on the stack
-        
 		String variableName = ctx.getChild(1).getText(); //sets the output to the input passed as shown in the parse tree
+
+		mainVisitor.visitLdcInsn(Integer.parseInt(ctx.getChild(3).getText())); // initializes the first integer
+		mainVisitor.visitVarInsn(Opcodes.ISTORE,storageLocation); // stores the first integer on the stack
 
 		//Searches for the output in the symbol table. If the output is found in the symbol table, it is marked as a variable and retrieves the storage location.
 		
-				variable var = symbolTable.get(variableName);
-				var.setMemoryLocation(storageLocation);
+
+		variable var = symbolTable.get(variableName);
+		var.setMemoryLocation(storageLocation);
 				//System.out.println(storageLocation);
 			
 		storageLocation = storageLocation+1;
