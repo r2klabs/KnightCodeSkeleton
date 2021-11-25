@@ -1,0 +1,13 @@
+PROGRAM Program15
+DECLARE
+	INTEGER x
+	INTEGER y
+	INTEGER z
+BEGIN
+	SET x:=70
+	SET y := 7
+	SET z := x/y
+	PRINT x
+	PRINT y
+	PRINT z
+END
