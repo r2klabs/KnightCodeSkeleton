@@ -17,8 +17,10 @@ public class myListener extends KnightCodeBaseListener{
 	private String varType;
 	private String instruction;
 	private String numType;
-	private int storageLocation = 1;
+	private static int storageLocation = 1;
 	private int scannerLocation;
+	private String nameVariable;
+	private int variableLocation;
 
     private HashMap<String, variable> symbolTable = new HashMap<String, variable>();
 
@@ -117,6 +119,8 @@ public class myListener extends KnightCodeBaseListener{
 
 		String identifier = ctx.getChild(1).getText(); //sets the identifier to the name of the variable name node of the parse tree
 		var.setVariableType(ctx.getChild(0).getText()); //sets the variable type of the variable object to the variable type node of the parse tree
+		var.setMemoryLocation(storageLocation);
+		storageLocation = storageLocation + 1;
 
 		symbolTable.put(identifier, var); //places the name and variable object into the symbol table
 
@@ -148,7 +152,7 @@ public class myListener extends KnightCodeBaseListener{
 			//System.out.println(var.getVariableType());
 			//System.out.println(storageLocation);
 			varType = var.getVariableType();
-			System.out.println("Found variable in symbol table.");
+			//System.out.println("Found variable in symbol table.");
 			//System.out.println(storageLocation);
 		}//end if
 		else{
@@ -284,18 +288,27 @@ public class myListener extends KnightCodeBaseListener{
 		System.out.println(ctx.getChild(3).getText());
 
 		String variableName = ctx.getChild(1).getText(); //sets the output to the input passed as shown in the parse tree
-
-		mainVisitor.visitLdcInsn(Integer.parseInt(ctx.getChild(3).getText())); // initializes the first integer
-		mainVisitor.visitVarInsn(Opcodes.ISTORE,storageLocation); // stores the first integer on the stack
-
-		//Searches for the output in the symbol table. If the output is found in the symbol table, it is marked as a variable and retrieves the storage location.
-		
-
 		variable var = symbolTable.get(variableName);
-		var.setMemoryLocation(storageLocation);
-				//System.out.println(storageLocation);
-			
-		storageLocation = storageLocation+1;
+		storageLocation = var.getMemoryLocation();
+
+		if(var.getVariableType().equals("INTEGER")){
+			if(ctx.getChild(3).getText().contains("+")){
+				System.out.println("Addition");
+
+			}else if(ctx.getChild(3).getText().contains("-")){
+
+
+			}else{
+				var.setVariableValue(Integer.parseInt(ctx.getChild(3).getText()));
+				mainVisitor.visitLdcInsn(Integer.parseInt(ctx.getChild(3).getText())); // initializes the first integer
+				mainVisitor.visitVarInsn(Opcodes.ISTORE,storageLocation); // stores the first integer on the stack
+				var.setMemoryLocation(storageLocation);
+				//System.out.println("Storage location in setvar..." + var.getMemoryLocation());
+			}
+
+
+		}
+
     }
 
 	/**
@@ -305,7 +318,65 @@ public class myListener extends KnightCodeBaseListener{
     public void exitSetvar(KnightCodeParser.SetvarContext ctx) { 
 
         System.out.println("Exiting set var...");
+		//System.out.println("Storage Location in exitSetVar..." + storageLocation);
     }
+
+	@Override 
+	public void enterAddition(KnightCodeParser.AdditionContext ctx) { 
+
+		System.out.println("Entering Addition...");
+		//System.out.println(ctx.getChild(0).getText());
+		//System.out.println(ctx.getChild(1).toString());
+		//System.out.println(ctx.getChild(2).getText());
+		//System.out.println("Storage Location in addition..." + storageLocation);
+
+		String variable1 = ctx.getChild(0).getText();
+		String variable2 = ctx.getChild(2).getText();
+
+		int variableLocation1;
+		int variableLocation2;
+
+		if(symbolTable.containsKey(variable1) && symbolTable.containsKey(variable2)){
+			variable var1 = symbolTable.get(variable1);
+			variableLocation1 = var1.getMemoryLocation();
+			//System.out.println(variableLocation1);
+			//System.out.println(var1.getVariableValue());
+			variable var2 = symbolTable.get(variable2);
+			variableLocation2 = var2.getMemoryLocation();
+			//System.out.println(variableLocation2);
+			//4System.out.println(var2.getVariableValue());
+			mainVisitor.visitVarInsn(Opcodes.ILOAD, variableLocation1);
+			mainVisitor.visitVarInsn(Opcodes.ILOAD, variableLocation2);
+			mainVisitor.visitInsn(Opcodes.IADD);
+			mainVisitor.visitVarInsn(Opcodes.ISTORE, storageLocation);
+
+		}
+		
+	}
+		
+	@Override 
+	public void exitAddition(KnightCodeParser.AdditionContext ctx) { 
+		System.out.println("Exiting Addition...");
+	}
+
+	@Override 
+	public void enterId(KnightCodeParser.IdContext ctx) { 
+		System.out.println("Enter ID...");
+	}
+	@Override 
+	public void exitId(KnightCodeParser.IdContext ctx) { 
+		System.out.println("Exit ID...");
+	}
+
+	@Override 
+	public void enterNumber(KnightCodeParser.NumberContext ctx) {
+		System.out.println("Enter Number...");
+	 }
+
+	@Override public void exitNumber(KnightCodeParser.NumberContext ctx) { 
+		System.out.println("Exit Number...");
+	}
+
 
 	/**
 	 * Prints context string. Used for debugging purposes

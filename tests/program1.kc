@@ -8,7 +8,9 @@ DECLARE
 BEGIN
 
 SET x := 10
+PRINT x
 SET y := 12
+PRINT y
 SET z := x + y
 
 PRINT z
