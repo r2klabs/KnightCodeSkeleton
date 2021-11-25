@@ -1,0 +1,14 @@
+PROGRAM Program13
+
+DECLARE
+	INTEGER x
+	INTEGER y
+	INTEGER z
+BEGIN
+	SET x := 8
+	PRINT x
+	SET y := 6
+	PRINT y
+	SET z := x-y
+	PRINT z
+END

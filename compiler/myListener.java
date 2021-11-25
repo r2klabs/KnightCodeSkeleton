@@ -280,12 +280,12 @@ public class myListener extends KnightCodeBaseListener{
     public void enterSetvar(KnightCodeParser.SetvarContext ctx) {
         System.out.println("Entering set var...");
 
-		System.out.println(symbolTable.toString());
+		//System.out.println(symbolTable.toString());
 
-		System.out.println(ctx.getChild(0).getText());
-		System.out.println(ctx.getChild(1).getText());
-		System.out.println(ctx.getChild(2).getText());
-		System.out.println(ctx.getChild(3).getText());
+		//System.out.println(ctx.getChild(0).getText());
+		//System.out.println(ctx.getChild(1).getText());
+		//System.out.println(ctx.getChild(2).getText());
+		//System.out.println(ctx.getChild(3).getText());
 
 		String variableName = ctx.getChild(1).getText(); //sets the output to the input passed as shown in the parse tree
 		variable var = symbolTable.get(variableName);
@@ -296,7 +296,7 @@ public class myListener extends KnightCodeBaseListener{
 				System.out.println("Addition");
 
 			}else if(ctx.getChild(3).getText().contains("-")){
-
+				System.out.println("Subtraction");
 
 			}else{
 				var.setVariableValue(Integer.parseInt(ctx.getChild(3).getText()));
@@ -357,6 +357,32 @@ public class myListener extends KnightCodeBaseListener{
 	@Override 
 	public void exitAddition(KnightCodeParser.AdditionContext ctx) { 
 		System.out.println("Exiting Addition...");
+	}
+
+	@Override 
+	public void enterSubtraction(KnightCodeParser.SubtractionContext ctx) { 
+		System.out.println("Entering subtraction...");
+		String variable1 = ctx.getChild(0).getText();
+		String variable2 = ctx.getChild(2).getText();
+
+		int variableLocation1;
+		int variableLocation2;
+
+		if(symbolTable.containsKey(variable1) && symbolTable.containsKey(variable2)){
+			variable var1 = symbolTable.get(variable1);
+			variableLocation1 = var1.getMemoryLocation();
+			variable var2 = symbolTable.get(variable2);
+			variableLocation2 = var2.getMemoryLocation();
+			mainVisitor.visitVarInsn(Opcodes.ILOAD, variableLocation1);
+			mainVisitor.visitVarInsn(Opcodes.ILOAD, variableLocation2);
+			mainVisitor.visitInsn(Opcodes.ISUB);
+			mainVisitor.visitVarInsn(Opcodes.ISTORE, storageLocation);
+
+		}
+	}
+	@Override 
+	public void exitSubtraction(KnightCodeParser.SubtractionContext ctx) { 
+		System.out.println("Exiting subtraction...");
 	}
 
 	@Override 
