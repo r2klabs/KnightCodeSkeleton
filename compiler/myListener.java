@@ -298,6 +298,9 @@ public class myListener extends KnightCodeBaseListener{
 			}else if(ctx.getChild(3).getText().contains("-")){
 				System.out.println("Subtraction");
 
+			}else if(ctx.getChild(3).getText().contains("*")){
+				System.out.println("Multiplication");
+				
 			}else{
 				var.setVariableValue(Integer.parseInt(ctx.getChild(3).getText()));
 				mainVisitor.visitLdcInsn(Integer.parseInt(ctx.getChild(3).getText())); // initializes the first integer
@@ -383,6 +386,32 @@ public class myListener extends KnightCodeBaseListener{
 	@Override 
 	public void exitSubtraction(KnightCodeParser.SubtractionContext ctx) { 
 		System.out.println("Exiting subtraction...");
+	}
+
+	@Override 
+	public void enterMultiplication(KnightCodeParser.MultiplicationContext ctx) { 
+		System.out.println("Entering multiplication...");
+		String variable1 = ctx.getChild(0).getText();
+		String variable2 = ctx.getChild(2).getText();
+
+		int variableLocation1;
+		int variableLocation2;
+
+		if(symbolTable.containsKey(variable1) && symbolTable.containsKey(variable2)){
+			variable var1 = symbolTable.get(variable1);
+			variableLocation1 = var1.getMemoryLocation();
+			variable var2 = symbolTable.get(variable2);
+			variableLocation2 = var2.getMemoryLocation();
+			mainVisitor.visitVarInsn(Opcodes.ILOAD, variableLocation1);
+			mainVisitor.visitVarInsn(Opcodes.ILOAD, variableLocation2);
+			mainVisitor.visitInsn(Opcodes.IMUL);
+			mainVisitor.visitVarInsn(Opcodes.ISTORE, storageLocation);
+
+		}
+	}
+	@Override 
+	public void exitMultiplication(KnightCodeParser.MultiplicationContext ctx) { 
+		System.out.println("Exiting multiplication...");
 	}
 
 	@Override 

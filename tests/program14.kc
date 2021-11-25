@@ -1,0 +1,14 @@
+PROGRAM Program14
+
+DECLARE
+	INTEGER x
+	INTEGER y
+	INTEGER z
+BEGIN
+	SET x := 7
+	SET y := 10
+	PRINT x
+	PRINT y
+	SET z := x * y
+	PRINT z
+END
