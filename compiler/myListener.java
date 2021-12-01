@@ -6,6 +6,16 @@ import org.objectweb.asm.*;  //classes for generating bytecode
 import org.objectweb.asm.Opcodes; //Explicit import for ASM bytecode constants
 import java.util.HashMap;
 
+/**
+ * myListener.java
+ * This class contains all methods used to run bytecode operations and manipulate the symbol table.
+ * @author Christina Porter
+ * @author Kaitlyn Reed
+ * @version 7.3
+ * Programming Project 4
+ * CS322 - Compiler Construction
+ * Fall 2021
+ */
 
 public class myListener extends KnightCodeBaseListener{
 
@@ -19,8 +29,8 @@ public class myListener extends KnightCodeBaseListener{
 	private String numType;
 	private static int storageLocation = 1;
 	private int scannerLocation;
-	private String nameVariable;
-	private int variableLocation;
+	//private String nameVariable;
+	//private int variableLocation;
 
     private HashMap<String, variable> symbolTable = new HashMap<String, variable>();
 
@@ -31,6 +41,9 @@ public class myListener extends KnightCodeBaseListener{
 
 	}//end constructor
 
+	/**
+	 * This method creates the class writer.
+	 */
 	public void setupClass(){
 		
 		//Set up the classwriter
@@ -52,6 +65,9 @@ public class myListener extends KnightCodeBaseListener{
 
 	}//end setupClass
 
+	/**
+	 * This method closes the class writer.
+	 */
 	public void closeClass(){
 		//Use global MethodVisitor to finish writing the bytecode and write the binary file.
 		mainVisitor.visitInsn(Opcodes.RETURN);
@@ -77,7 +93,7 @@ public class myListener extends KnightCodeBaseListener{
 
 		System.out.println("Enter program rule for first time");
 		setupClass();
-	}
+	} // end enterFile
 
 	/**
 	 * Overrides the exitFile method. Closes the class.
@@ -88,7 +104,7 @@ public class myListener extends KnightCodeBaseListener{
 		System.out.println("Leaving program rule. . .");
 		closeClass();
 
-	}
+	} // end exitFile
 
 	/**
 	 * Overrides the enterDeclare method.
@@ -96,7 +112,7 @@ public class myListener extends KnightCodeBaseListener{
     @Override 
     public void enterDeclare(KnightCodeParser.DeclareContext ctx) { 
         System.out.println("Enter declare...");
-    }
+    } // end enterDeclare
 
 	/**
 	 * Overrides the exitDeclare method.
@@ -104,7 +120,7 @@ public class myListener extends KnightCodeBaseListener{
 	@Override 
     public void exitDeclare(KnightCodeParser.DeclareContext ctx) { 
         System.out.println("Exit declare...");
-    }
+    } // end exitDeclare
 
 	/**
 	 * Overrides the enterVariable method.
@@ -124,16 +140,22 @@ public class myListener extends KnightCodeBaseListener{
 
 		symbolTable.put(identifier, var); //places the name and variable object into the symbol table
 
-    }
+    } // end enterVariable
 
+	/**
+	 * Overrides the exitVariable method
+	 */
 	@Override 
     public void exitVariable(KnightCodeParser.VariableContext ctx) { 
 		System.out.println("Exit variable...");
 
 		System.out.println(symbolTable.toString());
 
-    }
+    } // end exitVariable
 	
+	/**
+	 * Overrides the enterPrint method.
+	 */
     @Override
     public void enterPrint(KnightCodeParser.PrintContext ctx){
 
@@ -158,7 +180,7 @@ public class myListener extends KnightCodeBaseListener{
 		else{
 			System.out.println(symbolTable.toString());
 			System.out.println("Can't find variable in symbol table");
-		}
+		} // end else
 
 
 
@@ -203,7 +225,7 @@ public class myListener extends KnightCodeBaseListener{
     @Override 
     public void exitPrint(KnightCodeParser.PrintContext ctx) { 
         System.out.println("Exiting print statement...");
-    }
+    } // end exitPrint
 
 	/**
 	 * Overrides the enterRead method
@@ -262,8 +284,8 @@ public class myListener extends KnightCodeBaseListener{
 			variable var = symbolTable.get(varName);//Obtains the variable object stored in the symbol table
 			var.setMemoryLocation(storageLocation); //sets the storage location of the variable object in the symbol table
 			storageLocation = storageLocation + 1; //increases storage location by 1
-		}
-	}
+		} // end if
+	} // end enterRead
 	
 	/**
 	 * Overrides the exitRead
@@ -271,8 +293,8 @@ public class myListener extends KnightCodeBaseListener{
 	@Override 
 	public void exitRead(KnightCodeParser.ReadContext ctx) { 
 		System.out.println("Exit read...");
-	}
-
+	} // end exitRead
+ 
 	/**
 	 * Overrides the enterSetVar method
 	 */
@@ -310,12 +332,19 @@ public class myListener extends KnightCodeBaseListener{
 				mainVisitor.visitVarInsn(Opcodes.ISTORE,storageLocation); // stores the first integer on the stack
 				var.setMemoryLocation(storageLocation);
 				//System.out.println("Storage location in setvar..." + var.getMemoryLocation());
-			}
+			} // end if
 
+		} // end if
 
-		}
-
-    }
+		if(var.getVariableType().equals("STRING")) {
+			var.setVariableValue(ctx.getChild(3).getText());
+			mainVisitor.visitLdcInsn(ctx.getChild(3).getText());
+			mainVisitor.visitVarInsn(Opcodes.ASTORE, storageLocation);
+			var.setMemoryLocation(storageLocation);
+			System.out.println("Storage location in setvar..." + var.getMemoryLocation());
+		} // end if
+		
+    } // end enterSetVar
 
 	/**
 	 * Overrides the exitSetVar method
@@ -325,8 +354,11 @@ public class myListener extends KnightCodeBaseListener{
 
         System.out.println("Exiting set var...");
 		//System.out.println("Storage Location in exitSetVar..." + storageLocation);
-    }
+    } // end exitSetVar
 
+	/**
+	 * Overrides the enterAddition method
+	 */
 	@Override 
 	public void enterAddition(KnightCodeParser.AdditionContext ctx) { 
 
@@ -356,15 +388,21 @@ public class myListener extends KnightCodeBaseListener{
 			mainVisitor.visitInsn(Opcodes.IADD);
 			mainVisitor.visitVarInsn(Opcodes.ISTORE, storageLocation);
 
-		}
+		} // end if
 		
-	}
+	} // end enterAddition
 		
+	/**
+	 * Overrides the exitAddition method
+	 */
 	@Override 
 	public void exitAddition(KnightCodeParser.AdditionContext ctx) { 
 		System.out.println("Exiting Addition...");
-	}
+	} // end exitAddition
 
+	/**
+	 * Overrides the enterSubtraction method
+	 */
 	@Override 
 	public void enterSubtraction(KnightCodeParser.SubtractionContext ctx) { 
 		System.out.println("Entering subtraction...");
@@ -384,13 +422,20 @@ public class myListener extends KnightCodeBaseListener{
 			mainVisitor.visitInsn(Opcodes.ISUB);
 			mainVisitor.visitVarInsn(Opcodes.ISTORE, storageLocation);
 
-		}
-	}
+		} // end if
+	} // end enterSubtraction
+
+	/**
+	 * Overrides the exitSubtraction method
+	 */
 	@Override 
 	public void exitSubtraction(KnightCodeParser.SubtractionContext ctx) { 
 		System.out.println("Exiting subtraction...");
-	}
+	} // end exitSubtraction
 
+	/**
+	 * Overrides the enterMultiplication method
+	 */
 	@Override 
 	public void enterMultiplication(KnightCodeParser.MultiplicationContext ctx) { 
 		System.out.println("Entering multiplication...");
@@ -410,13 +455,20 @@ public class myListener extends KnightCodeBaseListener{
 			mainVisitor.visitInsn(Opcodes.IMUL);
 			mainVisitor.visitVarInsn(Opcodes.ISTORE, storageLocation);
 
-		}
-	}
+		} // end if
+	} // end enterMultiplication
+
+	/**
+	 * Overrides the exitMultiplication method
+	 */
 	@Override 
 	public void exitMultiplication(KnightCodeParser.MultiplicationContext ctx) { 
 		System.out.println("Exiting multiplication...");
-	}
+	} // end exitMultiplication
 
+	/**
+	 * Overrides the enterDivision method
+	 */
 	@Override 
 	public void enterDivision(KnightCodeParser.DivisionContext ctx) { 
 		System.out.println("Entering division...");
@@ -436,31 +488,47 @@ public class myListener extends KnightCodeBaseListener{
 			mainVisitor.visitInsn(Opcodes.IDIV);
 			mainVisitor.visitVarInsn(Opcodes.ISTORE, storageLocation);
 
-		}
-	}
+		} // end if
+	} // end enterDivision
+
+	/**
+	 * Overrides exitDivision method
+	 */
 	@Override 
 	public void exitDivision(KnightCodeParser.DivisionContext ctx) { 
 		System.out.println("Exiting division...");
-	}
+	} // end ExitDivision
 
+	/**
+	 * Overrides enterId method
+	 */
 	@Override 
 	public void enterId(KnightCodeParser.IdContext ctx) { 
 		System.out.println("Enter ID...");
-	}
+	} // end enterId
+
+	/**
+	 * Overrides exitId method
+	 */
 	@Override 
 	public void exitId(KnightCodeParser.IdContext ctx) { 
 		System.out.println("Exit ID...");
-	}
+	} // end exitId
 
+	/**
+	 * Overrides enterNumber method
+	 */
 	@Override 
 	public void enterNumber(KnightCodeParser.NumberContext ctx) {
 		System.out.println("Enter Number...");
-	 }
+	 } // end enterNumber
 
+	 /**
+	  * Overrides exitNumber method
+	  */
 	@Override public void exitNumber(KnightCodeParser.NumberContext ctx) { 
 		System.out.println("Exit Number...");
-	}
-
+	} // end exitNumber
 
 	/**
 	 * Prints context string. Used for debugging purposes
@@ -468,7 +536,7 @@ public class myListener extends KnightCodeBaseListener{
 	 */
 	private void printContext(String ctx){
 		System.out.println(ctx);
-	}
+	} // end printContext
 
 	/**
 	 * Overrides the enterEveryRule method
@@ -476,6 +544,54 @@ public class myListener extends KnightCodeBaseListener{
 	@Override 
 	public void enterEveryRule(ParserRuleContext ctx){ 
 		if(debug) printContext(ctx.getText());
-	}
+	} // end enterEveryRule
 
+	/**
+	 * Overrides the enterStat method
+	 */
+	@Override 
+	public void enterStat(KnightCodeParser.StatContext ctx) {
+		System.out.println("Enter Stat...");
+	 } // end enterStat
+	
+	 /**
+	 * Overrides the exitStat method
+	 */
+	@Override 
+	public void exitStat(KnightCodeParser.StatContext ctx) { 
+		System.out.println("Exit Stat...");
+	} // end exitStat
+
+	/**
+	 * Overrides the enterLoop method
+	 */
+	@Override 
+	public void enterLoop(KnightCodeParser.LoopContext ctx) { 
+		System.out.println("Enter Loop...");
+
+		//String reps = ctx.getChild(1).getText();
+	} // end enterLoop
+	
+	/**
+	 * Overrides the exitLoop method
+	 */
+	@Override 
+	public void exitLoop(KnightCodeParser.LoopContext ctx) {
+		System.out.println("Exit Loop...");
+	 } // end exitLoop
+
+	 /**
+	 * Overrides the enterDecision method
+	 */
+	 @Override public void enterDecision(KnightCodeParser.DecisionContext ctx) {
+		 System.out.println("Enter Decision...");
+	  } // end enterDecision
+	 
+	 /**
+	 * Overrides the exitDecision method
+	 */
+	 @Override public void exitDecision(KnightCodeParser.DecisionContext ctx) {
+		 System.out.println("Exit Decision...");
+	  } // end exitDecision
+	 
 }//end class

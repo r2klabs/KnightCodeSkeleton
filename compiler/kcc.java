@@ -14,6 +14,17 @@ import java.util.Scanner;
 
 import lexparse.*;
 
+/**
+ * kcc.java
+ * This class contains the main method.
+ * @author Christina Porter
+ * @author Kaitlyn Reed
+ * @version 1.0
+ * Programming Project 4
+ * CS322 - Compiler Construction
+ * Fall 2021
+ */
+
 public class kcc{
 
 
@@ -44,15 +55,13 @@ public class kcc{
 	        ParseTreeWalker walker = new ParseTreeWalker();
 	        walker.walk(listener, tree);
         
-        }
+            scan.close();
+        } // end try
         catch(IOException e){
             System.out.println(e.getMessage());
-        }
+        } // end catch
 
 
-    }
-
-
-
+    } // end main
 
 }//end class
